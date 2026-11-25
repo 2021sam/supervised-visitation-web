@@ -1,0 +1,15 @@
+{
+  "source": "GeoNames",
+  "dataset": "United States Postal Codes",
+  "source_url": "https://download.geonames.org/export/zip/",
+  "download_url": "https://download.geonames.org/export/zip/US.zip",
+  "active_filename": "US.txt",
+  "release_date": null,
+  "download_date": null,
+  "metadata_created_date": "2026-11-25",
+  "imported_from": "zyxe/data/geo/US.txt",
+  "record_count": 41485,
+  "unique_zip_count": 41483,
+  "sha256": "18ce8c7a8c7abeb0c62670e31eaab9f5a979a4b185fcc7cd805488f15262a410",
+  "attribution": "GeoNames (https://www.geonames.org/)"
+}

@@ -1,0 +1,11 @@
+{
+  "source": "U.S. Census Bureau",
+  "dataset": "National County Gazetteer",
+  "release_year": 2025,
+  "download_date": "2026-11-25",
+  "original_filename": "2025_Gaz_counties_national.txt",
+  "active_filename": "counties.txt",
+  "download_url": "https://www2.census.gov/geo/docs/maps-data/data/gazetteer/2025_Gazetteer/2025_Gaz_counties_national.zip",
+  "record_count": 3222,
+  "sha256": "1914f0d83243362de83b8ddd298c213b1768d63d62d19464743289abd8bb35b1"
+}
