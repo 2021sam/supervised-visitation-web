@@ -1,0 +1,76 @@
+.supervisor-table-container {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 1.5rem;
+}
+
+.supervisor-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+
+.supervisor-table th,
+.supervisor-table td {
+  padding: 12px 16px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+.supervisor-table th {
+  background: rgba(128, 128, 128, 0.15);
+  font-weight: 600;
+}
+
+.supervisor-table tbody tr:hover {
+  background: rgba(128, 128, 128, 0.08);
+}
+
+.supervisor-table td:nth-child(2) {
+  white-space: nowrap;
+}
+
+/* CRM column sizing */
+.supervisor-table {
+  min-width: 1400px;
+}
+
+.supervisor-table th {
+  white-space: nowrap;
+}
+
+.supervisor-table th:nth-child(1) {
+  min-width: 220px;
+}
+
+.supervisor-table th:nth-child(3) {
+  min-width: 220px;
+}
+
+.supervisor-table th:nth-child(4) {
+  min-width: 150px;
+}
+
+.supervisor-table input[type="number"] {
+  width: 90px;
+}
+
+.supervisor-table th:nth-child(7),
+.supervisor-table td:nth-child(7) {
+  text-align: center;
+  min-width: 100px;
+}
+
+.supervisor-table textarea {
+  width: 180px;
+  font-family: inherit;
+}
+
+.supervisor-table input,
+.supervisor-table select,
+.supervisor-table textarea {
+  font-size: inherit;
+  box-sizing: border-box;
+}
