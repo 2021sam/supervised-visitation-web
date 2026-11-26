@@ -1,3 +1,6 @@
+import PhoneLink from './contacts/PhoneLink'
+import EmailLink from './contacts/EmailLink'
+import WebsiteLink from './contacts/WebsiteLink'
 import { useState } from 'react'
 import { sortSupervisors } from '../crm/sorting'
 import type { SortConfig, SortField } from '../crm/sorting'
@@ -96,9 +99,9 @@ export default function SupervisorTable({
           {sortedSupervisors.map((supervisor) => (
             <tr key={supervisor.supervisor_id}>
               <td>{supervisor.name}</td>
-              <td>{supervisor.phone || '—'}</td>
-              <td>{supervisor.email || '—'}</td>
-              <td>{supervisor.website || '—'}</td>
+              <td><PhoneLink value={supervisor.phone} /></td>
+              <td><EmailLink value={supervisor.email} /></td>
+              <td><WebsiteLink value={supervisor.website} /></td>
 
               <CRMFields
                 entry={getEntry(supervisor.supervisor_id)}
