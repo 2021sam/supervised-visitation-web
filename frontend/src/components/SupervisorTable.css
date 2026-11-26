@@ -112,3 +112,36 @@
   display: block;
   color: #e57373;
 }
+
+/* Sortable column headings */
+.sortable-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.sortable-header:hover {
+  text-decoration: underline;
+}
+
+.sortable-header:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.sortable-header span {
+  opacity: 0.45;
+}
+
+.supervisor-table th[aria-sort] .sortable-header span {
+  opacity: 1;
+  color: var(--accent);
+}
