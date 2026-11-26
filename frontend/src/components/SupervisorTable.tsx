@@ -33,6 +33,11 @@ export default function SupervisorTable({
             <th scope="col">Website</th>
             <th scope="col">Contact status</th>
             <th scope="col">Quote ($/hr)</th>
+            <th scope="col">Meeting location</th>
+            <th scope="col" title="Additional fee per visit at the agreed location">
+              Location fee ($)
+            </th>
+            <th scope="col">Availability</th>
             <th scope="col">Transports child</th>
             <th scope="col">Notes</th>
           </tr>
@@ -58,7 +63,7 @@ export default function SupervisorTable({
       </table>
 
       <p>
-        Your contact statuses, quotes and notes are saved in
+        Your CRM entries are saved in
         this browser. No account is required.
         Avoid entering confidential case or child information.
       </p>

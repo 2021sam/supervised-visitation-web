@@ -8,10 +8,29 @@ export type ContactStatus =
   | 'unavailable'
   | 'hired'
 
+export type Weekday =
+  | 'monday'
+  | 'tuesday'
+  | 'wednesday'
+  | 'thursday'
+  | 'friday'
+  | 'saturday'
+  | 'sunday'
+
+export interface TimeRange {
+  start: string
+  end: string
+}
+
+export type WeeklyAvailability = Partial<Record<Weekday, TimeRange>>
+
 export interface CRMEntry {
   status: ContactStatus
   hourlyQuote: number | null
   transportsChild?: boolean | null
+  meetingLocation?: string
+  locationFee?: number | null
+  availability?: WeeklyAvailability
   notes: string
   updatedAt: string
 }
@@ -23,6 +42,9 @@ export function createCRMEntry(): CRMEntry {
     status: 'not_contacted',
     hourlyQuote: null,
     transportsChild: null,
+    meetingLocation: '',
+    locationFee: null,
+    availability: {},
     notes: '',
     updatedAt: '',
   }

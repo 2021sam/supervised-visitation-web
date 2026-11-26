@@ -1,4 +1,6 @@
 import type { CRMEntry, ContactStatus } from '../crm/types'
+import MeetingLocation from './MeetingLocation'
+import WeeklyAvailability from './WeeklyAvailability'
 
 interface Props {
   entry: CRMEntry
@@ -58,6 +60,45 @@ export default function CRMFields({
               onChange({ hourlyQuote: quote })
             }
           }}
+        />
+      </td>
+
+      <td>
+        <MeetingLocation
+          value={entry.meetingLocation ?? ''}
+          onChange={(meetingLocation) =>
+            onChange({ meetingLocation })
+          }
+        />
+      </td>
+
+      <td>
+        <input
+          aria-label="Location fee per visit"
+          type="number"
+          min="0"
+          step="1"
+          placeholder="$"
+          value={entry.locationFee ?? ''}
+          onChange={(event) => {
+            const value = event.target.value
+            const fee = event.target.valueAsNumber
+
+            if (value === '') {
+              onChange({ locationFee: null })
+            } else if (Number.isFinite(fee) && fee >= 0) {
+              onChange({ locationFee: fee })
+            }
+          }}
+        />
+      </td>
+
+      <td>
+        <WeeklyAvailability
+          value={entry.availability ?? {}}
+          onChange={(availability) =>
+            onChange({ availability })
+          }
         />
       </td>
 
