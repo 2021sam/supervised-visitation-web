@@ -9,6 +9,7 @@ import type { SortConfig, SortField } from '../crm/sorting'
 import SortableHeader from './SortableHeader'
 import type { Supervisor } from '../types/supervisor'
 import { useCRM } from '../crm/useCRM'
+import { getEffectiveEntry } from '../crm/effectiveEntry'
 import CRMFields from './CRMFields'
 import './SupervisorTable.css'
 
@@ -21,7 +22,7 @@ export default function SupervisorTable({
   supervisors,
   showDistance = false,
 }: Props) {
-  const { records, getEntry, updateEntry, storageError } = useCRM()
+  const { records, updateEntry, storageError } = useCRM()
 
   const [sort, setSort] = useState<SortConfig>({
     field: showDistance ? 'distance' : 'name',
@@ -50,6 +51,7 @@ export default function SupervisorTable({
 
   return (
     <div className="supervisor-table-container">
+
       {storageError && (
         <p role="alert">
           Your changes could not be saved to browser storage.
@@ -91,7 +93,8 @@ export default function SupervisorTable({
               onSort={handleSort}
             />
             <SortableHeader
-              label="Quote ($/hr)"
+              label="Rate ($/hr)"
+              title="Published minimum hourly rate or your confirmed quote"
               field="hourlyQuote"
               sort={sort}
               onSort={handleSort}
@@ -136,7 +139,10 @@ export default function SupervisorTable({
               <td>{supervisor.languages?.trim() || '—'}</td>
 
               <CRMFields
-                entry={getEntry(supervisor.supervisor_id)}
+                entry={getEffectiveEntry(
+                  supervisor,
+                  records[String(supervisor.supervisor_id)],
+                )}
                 onChange={(changes) =>
                   updateEntry(supervisor.supervisor_id, changes)
                 }

@@ -9,7 +9,7 @@ export function useCRM() {
   const recordsRef = useRef(records)
 
   function getEntry(supervisorId: number): CRMEntry {
-    return records[String(supervisorId)] ?? createCRMEntry()
+    return { ...createCRMEntry(), ...records[String(supervisorId)] }
   }
 
   function updateEntry(
@@ -22,7 +22,7 @@ export function useCRM() {
     const nextRecords = {
       ...previous,
       [key]: {
-        ...(previous[key] ?? createCRMEntry()),
+        ...previous[key],
         ...changes,
         updatedAt: new Date().toISOString(),
       },

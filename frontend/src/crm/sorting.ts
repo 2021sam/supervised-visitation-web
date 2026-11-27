@@ -1,5 +1,6 @@
 import type { Supervisor } from '../types/supervisor'
 import type { CRMRecords } from './types'
+import { getEffectiveEntry } from './effectiveEntry'
 
 export type SortField =
   | 'name'
@@ -22,7 +23,10 @@ function getSortValue(
   records: CRMRecords,
   field: SortField,
 ): string | number | null {
-  const entry = records[String(supervisor.supervisor_id)]
+  const entry = getEffectiveEntry(
+    supervisor,
+    records[String(supervisor.supervisor_id)],
+  )
 
   switch (field) {
     case 'name':

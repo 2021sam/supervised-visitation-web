@@ -63,6 +63,8 @@ export default function CRMFields({
         />
       </td>
 
+
+
       <td>
         <MeetingLocation
           value={entry.meetingLocation ?? ''}
@@ -103,16 +105,26 @@ export default function CRMFields({
       </td>
 
       <td>
-        <input
-          type="checkbox"
+        <select
           aria-label="Transports child"
-          checked={entry.transportsChild === true}
-          onChange={(event) =>
-            onChange({
-              transportsChild: event.target.checked,
-            })
+          value={
+            entry.transportsChild == null
+              ? 'unknown'
+              : entry.transportsChild ? 'yes' : 'no'
           }
-        />
+          onChange={(event) => {
+            const value = event.target.value
+
+            onChange({
+              transportsChild:
+                value === 'unknown' ? null : value === 'yes',
+            })
+          }}
+        >
+          <option value="unknown">Unknown</option>
+          <option value="yes">Yes</option>
+          <option value="no">No</option>
+        </select>
       </td>
 
       <td>

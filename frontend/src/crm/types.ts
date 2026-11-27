@@ -35,7 +35,7 @@ export interface CRMEntry {
   updatedAt: string
 }
 
-export type CRMRecords = Record<string, CRMEntry>
+export type CRMRecords = Record<string, Partial<CRMEntry>>
 
 export function createCRMEntry(): CRMEntry {
   return {
