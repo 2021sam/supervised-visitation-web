@@ -17,7 +17,14 @@ def list_supervisors(state_code=None, county=None):
             s.address,
             s.city,
             s.state_code,
-            s.zip_code
+            s.zip_code,
+            s.latitude,
+            s.longitude,
+            s.service_area,
+            s.service_zip_code,
+            s.languages,
+            s.service_counties,
+            s.additional_info
         FROM supervisors s
         JOIN supervisor_courts c
             ON c.supervisor_id = s.supervisor_id

@@ -1,3 +1,5 @@
+import SupervisorDetails from './SupervisorDetails'
+import SupervisorZip from './SupervisorZip'
 import PhoneLink from './contacts/PhoneLink'
 import EmailLink from './contacts/EmailLink'
 import WebsiteLink from './contacts/WebsiteLink'
@@ -12,15 +14,17 @@ import './SupervisorTable.css'
 
 interface Props {
   supervisors: Supervisor[]
+  showDistance?: boolean
 }
 
 export default function SupervisorTable({
   supervisors,
+  showDistance = false,
 }: Props) {
   const { records, getEntry, updateEntry, storageError } = useCRM()
 
   const [sort, setSort] = useState<SortConfig>({
-    field: 'name',
+    field: showDistance ? 'distance' : 'name',
     direction: 'asc',
   })
 
@@ -61,6 +65,16 @@ export default function SupervisorTable({
               sort={sort}
               onSort={handleSort}
             />
+            <th scope="col">ZIP code</th>
+            {showDistance && (
+              <SortableHeader
+                label="Distance (mi)"
+                field="distance"
+                sort={sort}
+                onSort={handleSort}
+                title="Approximate straight-line distance"
+              />
+            )}
             <th scope="col">Phone</th>
             <th scope="col">Email</th>
             <th scope="col">Website</th>
@@ -98,7 +112,18 @@ export default function SupervisorTable({
         <tbody>
           {sortedSupervisors.map((supervisor) => (
             <tr key={supervisor.supervisor_id}>
-              <td>{supervisor.name}</td>
+              <td>
+                {supervisor.name}
+                <SupervisorDetails supervisor={supervisor} />
+              </td>
+              <td><SupervisorZip supervisor={supervisor} /></td>
+              {showDistance && (
+                <td>
+                  {supervisor.distance_miles == null
+                    ? '—'
+                    : supervisor.distance_miles.toFixed(1)}
+                </td>
+              )}
               <td><PhoneLink value={supervisor.phone} /></td>
               <td><EmailLink value={supervisor.email} /></td>
               <td><WebsiteLink value={supervisor.website} /></td>

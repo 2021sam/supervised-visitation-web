@@ -3,6 +3,7 @@ import type { CRMRecords } from './types'
 
 export type SortField =
   | 'name'
+  | 'distance'
   | 'hourlyQuote'
   | 'locationFee'
   | 'status'
@@ -25,6 +26,9 @@ function getSortValue(
   switch (field) {
     case 'name':
       return supervisor.name
+
+    case 'distance':
+      return supervisor.distance_miles ?? null
 
     case 'hourlyQuote':
       return entry?.hourlyQuote ?? null

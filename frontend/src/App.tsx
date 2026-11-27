@@ -4,6 +4,9 @@ import { fetchStates } from './api/states'
 import { fetchCounties } from './api/counties'
 import StateSelector from './components/StateSelector'
 import CountySelector from './components/CountySelector'
+import SearchMethodSelector from './components/SearchMethodSelector'
+import type { SearchMethod } from './components/SearchMethodSelector'
+import ZipRadiusSelector from './components/ZipRadiusSelector'
 import SupervisorTable from './components/SupervisorTable'
 import type { Supervisor } from './types/supervisor'
 import type { State } from './types/state'
@@ -15,6 +18,14 @@ export default function App() {
   const [counties, setCounties] = useState<County[]>([])
   const [selectedState, setSelectedState] = useState('')
   const [selectedCounty, setSelectedCounty] = useState('')
+  const [searchMethod, setSearchMethod] =
+    useState<SearchMethod>('county')
+
+  const [radiusSearch, setRadiusSearch] = useState<{
+    zipCode: string
+    radiusMiles: number
+  } | null>(null)
+
   const [supervisors, setSupervisors] = useState<Supervisor[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -52,9 +63,25 @@ export default function App() {
   }, [selectedState])
 
   useEffect(() => {
+    if (searchMethod === 'radius' && !radiusSearch) return
+
     let active = true
 
-    fetchSupervisors(selectedState, undefined, selectedCounty)
+    const request = searchMethod === 'radius' && radiusSearch
+      ? fetchSupervisors(
+          selectedState,
+          undefined,
+          undefined,
+          radiusSearch.zipCode,
+          radiusSearch.radiusMiles,
+        )
+      : fetchSupervisors(
+          selectedState,
+          undefined,
+          selectedCounty,
+        )
+
+    request
       .then((data) => {
         if (active) setSupervisors(data.supervisors)
       })
@@ -66,7 +93,12 @@ export default function App() {
       })
 
     return () => { active = false }
-  }, [selectedState, selectedCounty])
+  }, [
+    selectedState,
+    selectedCounty,
+    searchMethod,
+    radiusSearch,
+  ])
 
   function handleStateChange(stateCode: string) {
     if (stateCode === selectedState) return
@@ -76,6 +108,8 @@ export default function App() {
     setCountyError('')
     setCounties([])
     setSelectedCounty('')
+    setSearchMethod('county')
+    setRadiusSearch(null)
     setSelectedState(stateCode)
   }
 
@@ -85,6 +119,25 @@ export default function App() {
     setLoading(true)
     setError('')
     setSelectedCounty(geoid)
+  }
+
+  function handleSearchMethodChange(method: SearchMethod) {
+    if (method === searchMethod) return
+
+    setError('')
+    setSelectedCounty('')
+    setRadiusSearch(null)
+    setLoading(method === 'county')
+    setSearchMethod(method)
+  }
+
+  function handleRadiusSearch(
+    zipCode: string,
+    radiusMiles: number,
+  ) {
+    setLoading(true)
+    setError('')
+    setRadiusSearch({ zipCode, radiusMiles })
   }
 
   return (
@@ -99,24 +152,55 @@ export default function App() {
       />
 
       {selectedState && (
-        <CountySelector
-          counties={counties}
-          selectedCounty={selectedCounty}
-          onChange={handleCountyChange}
-        />
+        <>
+          <SearchMethodSelector
+            method={searchMethod}
+            onChange={handleSearchMethodChange}
+          />
+
+          {searchMethod === 'county' ? (
+            <CountySelector
+              counties={counties}
+              selectedCounty={selectedCounty}
+              onChange={handleCountyChange}
+            />
+          ) : (
+            <ZipRadiusSelector
+              key={selectedState}
+              onSearch={handleRadiusSearch}
+            />
+          )}
+        </>
       )}
 
       {stateError && <p role="alert">{stateError}</p>}
-      {countyError && <p role="alert">{countyError}</p>}
 
-      {loading ? (
+      {searchMethod === 'county' && countyError && (
+        <p role="alert">{countyError}</p>
+      )}
+
+      {searchMethod === 'radius' && (
+        <p>
+          Distances are approximate straight-line distances.
+          Supervisors without usable location information
+          are excluded. County search may show more results.
+        </p>
+      )}
+
+      {searchMethod === 'radius' && !radiusSearch ? (
+        <p>Enter a ZIP code and select a search distance.</p>
+      ) : loading ? (
         <p>Loading supervisors...</p>
       ) : error ? (
         <p role="alert">{error}</p>
       ) : (
         <>
           <p>{supervisors.length} supervisors found</p>
-          <SupervisorTable supervisors={supervisors} />
+          <SupervisorTable
+            key={searchMethod}
+            supervisors={supervisors}
+            showDistance={searchMethod === 'radius'}
+          />
         </>
       )}
     </main>

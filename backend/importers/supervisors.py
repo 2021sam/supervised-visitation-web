@@ -24,6 +24,11 @@ def import_supervisors():
                 s.phone,
                 s.email,
                 s.website,
+                s.zip_code,
+                s.service_area,
+                s.service_counties,
+                s.languages,
+                s.additional_info,
                 c.county,
                 c.court_url,
                 r.url AS source_url
@@ -62,20 +67,32 @@ def import_supervisors():
             )
             destination.execute("""
                 INSERT INTO supervisors (
-                    supervisor_id, name, phone, email, website
+                    supervisor_id, name, phone, email, website,
+                    zip_code, service_area, service_counties,
+                    languages, additional_info
                 )
-                VALUES (?, ?, ?, ?, ?)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                 ON CONFLICT(supervisor_id) DO UPDATE SET
                     name = excluded.name,
                     phone = excluded.phone,
                     email = excluded.email,
-                    website = excluded.website
+                    website = excluded.website,
+                    zip_code = excluded.zip_code,
+                    service_area = excluded.service_area,
+                    service_counties = excluded.service_counties,
+                    languages = excluded.languages,
+                    additional_info = excluded.additional_info
             """, (
                 supervisor_id,
                 record["name"],
                 record["phone"],
                 record["email"],
                 record["website"],
+                record["zip_code"],
+                record["service_area"],
+                record["service_counties"],
+                record["languages"],
+                record["additional_info"],
             ))
 
             destination.execute("""

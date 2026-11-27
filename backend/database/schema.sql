@@ -9,7 +9,12 @@ CREATE TABLE IF NOT EXISTS supervisors (
     state_code TEXT NOT NULL DEFAULT '',
     zip_code TEXT NOT NULL DEFAULT '',
     latitude REAL,
-    longitude REAL
+    longitude REAL,
+    service_area TEXT,
+    service_zip_code TEXT,
+    languages TEXT,
+    service_counties TEXT,
+    additional_info TEXT
 );
 
 CREATE TABLE IF NOT EXISTS supervisor_courts (
