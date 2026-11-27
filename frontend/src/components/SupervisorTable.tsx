@@ -94,12 +94,17 @@ export default function SupervisorTable({
             />
             <SortableHeader
               label="Rate ($/hr)"
-              title="Published minimum hourly rate or your confirmed quote"
+              title="Published hourly rate or your confirmed quote"
               field="hourlyQuote"
               sort={sort}
               onSort={handleSort}
             />
-            <th scope="col">Meeting location</th>
+            <SortableHeader
+              label="Hours"
+              field="hours"
+              sort={sort}
+              onSort={handleSort}
+            />
             <SortableHeader
               label="Location fee ($)"
               field="locationFee"
@@ -107,6 +112,14 @@ export default function SupervisorTable({
               onSort={handleSort}
               title="Additional fee per visit at the agreed location"
             />
+            <SortableHeader
+              label="Total ($)"
+              field="totalCost"
+              sort={sort}
+              onSort={handleSort}
+              title="Hourly rate × hours + location fee"
+            />
+            <th scope="col">Meeting location</th>
             <th scope="col">Availability</th>
             <SortableHeader
               label="Transports child"

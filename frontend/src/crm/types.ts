@@ -26,10 +26,11 @@ export type WeeklyAvailability = Partial<Record<Weekday, TimeRange>>
 
 export interface CRMEntry {
   status: ContactStatus
-  hourlyQuote: number | null
+  hourlyQuote: string | number | null
   transportsChild?: boolean | null
   meetingLocation?: string
   locationFee?: number | null
+  hours?: number | null
   availability?: WeeklyAvailability
   notes: string
   updatedAt: string
@@ -44,6 +45,7 @@ export function createCRMEntry(): CRMEntry {
     transportsChild: null,
     meetingLocation: '',
     locationFee: null,
+    hours: 2,
     availability: {},
     notes: '',
     updatedAt: '',

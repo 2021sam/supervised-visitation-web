@@ -167,3 +167,14 @@
     color: #60a5fa;
   }
 }
+
+/* CRM rate and calculated total */
+.supervisor-table input[aria-label="Hourly quote in dollars"] {
+  width: 110px;
+}
+
+.supervisor-table .crm-total {
+  white-space: nowrap;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}

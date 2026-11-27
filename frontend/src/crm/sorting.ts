@@ -1,3 +1,4 @@
+import { calculateTotal } from './totalCost'
 import type { Supervisor } from '../types/supervisor'
 import type { CRMRecords } from './types'
 import { getEffectiveEntry } from './effectiveEntry'
@@ -8,6 +9,8 @@ export type SortField =
   | 'languages'
   | 'hourlyQuote'
   | 'locationFee'
+  | 'hours'
+  | 'totalCost'
   | 'status'
   | 'transportsChild'
 
@@ -40,6 +43,12 @@ function getSortValue(
 
     case 'hourlyQuote':
       return entry?.hourlyQuote ?? null
+
+    case 'hours':
+      return entry.hours ?? null
+
+    case 'totalCost':
+      return calculateTotal(entry)
 
     case 'locationFee':
       return entry?.locationFee ?? null

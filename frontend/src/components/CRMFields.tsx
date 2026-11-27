@@ -1,4 +1,5 @@
 import type { CRMEntry, ContactStatus } from '../crm/types'
+import { calculateTotal } from '../crm/totalCost'
 import MeetingLocation from './MeetingLocation'
 import WeeklyAvailability from './WeeklyAvailability'
 
@@ -22,6 +23,8 @@ export default function CRMFields({
   entry,
   onChange,
 }: Props) {
+  const total = calculateTotal(entry)
+
   return (
     <>
       <td>
@@ -45,34 +48,40 @@ export default function CRMFields({
       <td>
         <input
           aria-label="Hourly quote in dollars"
-          type="number"
-          min="0"
-          step="1"
+          type="text"
           placeholder="$ / hr"
           value={entry.hourlyQuote ?? ''}
-          onChange={(event) => {
-            const value = event.target.value
-            const quote = event.target.valueAsNumber
-
-            if (value === '') {
-              onChange({ hourlyQuote: null })
-            } else if (Number.isFinite(quote) && quote >= 0) {
-              onChange({ hourlyQuote: quote })
-            }
-          }}
+          onChange={(event) =>
+            onChange({
+              hourlyQuote: event.target.value || null,
+            })
+          }
         />
       </td>
 
 
 
       <td>
-        <MeetingLocation
-          value={entry.meetingLocation ?? ''}
-          onChange={(meetingLocation) =>
-            onChange({ meetingLocation })
-          }
+        <input
+          aria-label="Visitation hours"
+          type="number"
+          min="0"
+          step="any"
+          placeholder="Hours"
+          value={entry.hours ?? ''}
+          onChange={(event) => {
+            const hours = event.target.valueAsNumber
+
+            if (event.target.value === '') {
+              onChange({ hours: null })
+            } else if (Number.isFinite(hours) && hours >= 0) {
+              onChange({ hours })
+            }
+          }}
         />
       </td>
+
+
 
       <td>
         <input
@@ -92,6 +101,19 @@ export default function CRMFields({
               onChange({ locationFee: fee })
             }
           }}
+        />
+      </td>
+
+      <td className="crm-total">
+        {total == null ? '' : total.toFixed(2)}
+      </td>
+
+      <td>
+        <MeetingLocation
+          value={entry.meetingLocation ?? ''}
+          onChange={(meetingLocation) =>
+            onChange({ meetingLocation })
+          }
         />
       </td>
 
