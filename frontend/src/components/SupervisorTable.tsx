@@ -79,6 +79,12 @@ export default function SupervisorTable({
             <th scope="col">Email</th>
             <th scope="col">Website</th>
             <SortableHeader
+              label="Languages"
+              field="languages"
+              sort={sort}
+              onSort={handleSort}
+            />
+            <SortableHeader
               label="Contact status"
               field="status"
               sort={sort}
@@ -127,6 +133,7 @@ export default function SupervisorTable({
               <td><PhoneLink value={supervisor.phone} /></td>
               <td><EmailLink value={supervisor.email} /></td>
               <td><WebsiteLink value={supervisor.website} /></td>
+              <td>{supervisor.languages?.trim() || '—'}</td>
 
               <CRMFields
                 entry={getEntry(supervisor.supervisor_id)}

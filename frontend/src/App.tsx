@@ -7,6 +7,8 @@ import CountySelector from './components/CountySelector'
 import SearchMethodSelector from './components/SearchMethodSelector'
 import type { SearchMethod } from './components/SearchMethodSelector'
 import ZipRadiusSelector from './components/ZipRadiusSelector'
+import LanguageSelector from './components/LanguageSelector'
+import { getAvailableLanguages, filterByLanguage } from './search/languages'
 import SupervisorTable from './components/SupervisorTable'
 import type { Supervisor } from './types/supervisor'
 import type { State } from './types/state'
@@ -18,6 +20,7 @@ export default function App() {
   const [counties, setCounties] = useState<County[]>([])
   const [selectedState, setSelectedState] = useState('')
   const [selectedCounty, setSelectedCounty] = useState('')
+  const [selectedLanguage, setSelectedLanguage] = useState('')
   const [searchMethod, setSearchMethod] =
     useState<SearchMethod>('county')
 
@@ -83,7 +86,10 @@ export default function App() {
 
     request
       .then((data) => {
-        if (active) setSupervisors(data.supervisors)
+        if (active) {
+          setSupervisors(data.supervisors)
+          setSelectedLanguage('')
+        }
       })
       .catch((error: Error) => {
         if (active) setError(error.message)
@@ -140,6 +146,12 @@ export default function App() {
     setRadiusSearch({ zipCode, radiusMiles })
   }
 
+  const languages = getAvailableLanguages(supervisors)
+  const filteredSupervisors = filterByLanguage(
+    supervisors,
+    selectedLanguage,
+  )
+
   return (
     <main>
       <h1>Supervised Visitation Directory</h1>
@@ -195,10 +207,15 @@ export default function App() {
         <p role="alert">{error}</p>
       ) : (
         <>
-          <p>{supervisors.length} supervisors found</p>
+          <LanguageSelector
+            languages={languages}
+            selectedLanguage={selectedLanguage}
+            onChange={setSelectedLanguage}
+          />
+          <p>{filteredSupervisors.length} supervisors found</p>
           <SupervisorTable
             key={searchMethod}
-            supervisors={supervisors}
+            supervisors={filteredSupervisors}
             showDistance={searchMethod === 'radius'}
           />
         </>
