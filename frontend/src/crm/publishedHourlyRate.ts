@@ -7,13 +7,27 @@ export function getPublishedHourlyRate(
 
   if (!line) return null
 
-  const text = line
+  let text = line
     .replace(/^Published rates:\s*/i, '')
     .trim()
 
   if (/^\$?0(?:\.00)?$|^free$/i.test(text)) {
     return 0
   }
+
+  text = text
+    .replace(
+      /\bhourly\s+(?:fee|rate)\s*:?\s*(\$\d+(?:\.\d{1,2})?)(?![\d.])/gi,
+      '$1 per hour',
+    )
+    .replace(
+      /(\$\d+(?:\.\d{1,2})?)\s+hourly\s+(?:fee|rate)\b/gi,
+      '$1 per hour',
+    )
+    .replace(
+      /(?:written summaries\s*\/\s*)?court reports?\s*:\s*\$\d+(?:\.\d{1,2})?\s*(?:\/\s*|per\s+)(?:hour|hr)\b/gi,
+      '',
+    )
 
   const pattern =
     /\$(\d+(?:\.\d{1,2})?)(?:\s*[-–—]\s*\$?(\d+(?:\.\d{1,2})?))?\s*(\+)?\s*\(?\s*(?:per\s*\/?\s*|\/\s*)(?:hour|hr)\b/gi
