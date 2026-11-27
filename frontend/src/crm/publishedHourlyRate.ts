@@ -18,6 +18,8 @@ export function getPublishedHourlyRate(
   const pattern =
     /\$(\d+(?:\.\d{1,2})?)(?:\s*[-–—]\s*\$?(\d+(?:\.\d{1,2})?))?\s*(\+)?\s*\(?\s*(?:per\s*\/?\s*|\/\s*)(?:hour|hr)\b/gi
 
+  const rates: (string | number)[] = []
+
   for (const match of text.matchAll(pattern)) {
     const after = text.slice(
       match.index + match[0].length,
@@ -33,17 +35,31 @@ export function getPublishedHourlyRate(
       return `Up to ${minimum}`
     }
 
+    const openEnded = Boolean(match[3]) ||
+      /^\s*(?:&|and)\s+up\b/i.test(after) ||
+      /starting at\s*$/i.test(text.slice(0, match.index))
+
     if (match[2]) {
-      return `${minimum}-${Number(match[2])}`
+      rates.push(`${minimum}-${Number(match[2])}${openEnded ? '+' : ''}`)
+      continue
     }
 
-    if (match[3] || /starting at\s*$/i.test(
-      text.slice(0, match.index),
-    )) {
-      return `${minimum}+`
+    rates.push(openEnded ? `${minimum}+` : minimum)
+  }
+
+  const uniqueRates = [...new Set(rates)]
+
+  if (uniqueRates.length === 1) {
+    return uniqueRates[0]
+  }
+
+  if (uniqueRates.length > 1) {
+    if (uniqueRates.every(rate => typeof rate === 'number')) {
+      const values = uniqueRates.map(Number)
+      return `${Math.min(...values)}-${Math.max(...values)}`
     }
 
-    return minimum
+    return uniqueRates.join(' / ')
   }
 
   const allServices = text.match(
