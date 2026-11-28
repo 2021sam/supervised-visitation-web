@@ -8,6 +8,7 @@ from backend.api.auth import COOKIE_NAME, require_same_origin
 from backend.auth.sessions import get_session_email
 from backend.registration.profiles import get_profile, save_profile
 from backend.registration.matching import find_existing_provider
+from backend.registration.updates import update_registration
 
 router = APIRouter(prefix="/api/registration")
 
@@ -72,7 +73,9 @@ def update_profile(
             )
 
     try:
-        profile = save_profile(email, values)
+        profile, published = update_registration(
+            email, lambda: save_profile(email, values)
+        )
     except (ValueError, sqlite3.IntegrityError, OverflowError):
         raise HTTPException(
             status_code=422,
@@ -82,6 +85,7 @@ def update_profile(
     return {
         "account_email": email,
         "profile": profile,
+        "publication_success": published,
     }
 
 
@@ -112,14 +116,21 @@ async def upload_photo(request: Request, response: Response):
         photo = await run_in_threadpool(
             process_photo, bytes(data)
         )
-        await run_in_threadpool(save_photo, email, photo)
+        _, published = await run_in_threadpool(
+            update_registration,
+            email,
+            lambda: save_photo(email, photo),
+        )
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
             detail=str(exc),
         ) from exc
 
-    return {"profile_photo": photo}
+    return {
+        "profile_photo": photo,
+        "publication_success": published,
+    }
 
 
 @router.delete("/photo")
@@ -131,11 +142,68 @@ def remove_photo(request: Request, response: Response):
     email = require_verified_email(request)
 
     try:
-        save_photo(email, None)
+        _, published = update_registration(
+            email, lambda: save_photo(email, None)
+        )
     except ValueError as exc:
         raise HTTPException(
             status_code=422,
             detail=str(exc),
         ) from exc
 
-    return {"profile_photo": None}
+    return {
+        "profile_photo": None,
+        "publication_success": published,
+    }
+
+
+@router.post("/profile/action")
+def profile_action(
+    values: dict,
+    request: Request,
+    response: Response,
+):
+    import logging
+    import os
+
+    from backend.registration.publication import publish_action
+
+    response.headers["Cache-Control"] = "no-store"
+
+    require_same_origin(request)
+    email = require_verified_email(request)
+
+    if os.environ.get("PROFILE_PUBLICATION_ENABLED") != "1":
+        raise HTTPException(
+            status_code=503,
+            detail="Profile publication is not yet enabled.",
+        )
+
+    action = values.get("action")
+
+    if action not in ("publish", "hide", "delete"):
+        raise HTTPException(
+            status_code=422,
+            detail="Invalid profile action.",
+        )
+
+    try:
+        profile = publish_action(email, action)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+    except Exception as exc:
+        logging.getLogger(__name__).exception(
+            "Profile publication failed"
+        )
+        raise HTTPException(
+            status_code=503,
+            detail="Unable to update the directory. Please try again.",
+        ) from exc
+
+    return {
+        "account_email": email,
+        "profile": profile,
+    }

@@ -46,6 +46,12 @@ export default function ProfilePhoto({
       }
 
       onChange(data.profile_photo)
+
+      if (data.publication_success === false) {
+        setError(
+          'Your photo change was saved, but the directory could not be updated. Save your profile to retry.'
+        )
+      }
     } catch (err) {
       setError((err as Error).message)
     } finally {

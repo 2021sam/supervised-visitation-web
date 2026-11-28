@@ -17,11 +17,12 @@ from backend.publication.reset import reset_registration_overrides
 from backend.publication.registrations import read_registrations
 from backend.publication.merge_plan import build_merge_plan
 from backend.publication.merge import apply_merge_plan
+from backend.publication.locking import publication_lock
 
 SCHEMA = Path(__file__).resolve().parents[1] / "database" / "schema.sql"
 
 
-def rebuild_directory(
+def _rebuild_directory(
     source_path=SOURCE,
     destination_path=DESTINATION,
     registration_path=DATABASE_PATH,
@@ -81,3 +82,16 @@ def rebuild_directory(
 
     print("Registration overrides:", counts)
     return count
+
+
+def rebuild_directory(
+    source_path=SOURCE,
+    destination_path=DESTINATION,
+    registration_path=DATABASE_PATH,
+):
+    with publication_lock(destination_path):
+        return _rebuild_directory(
+            source_path=source_path,
+            destination_path=destination_path,
+            registration_path=registration_path,
+        )

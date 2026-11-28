@@ -5,6 +5,7 @@ export interface RegistrationResponse {
   account_email: string
   profile: Profile | null
   prefill?: Profile | null
+  publication_success?: boolean | null
 }
 
 async function request(values?: Profile): Promise<RegistrationResponse> {
@@ -31,3 +32,29 @@ async function request(values?: Profile): Promise<RegistrationResponse> {
 
 export const fetchProfile = () => request()
 export const saveProfile = (values: Profile) => request(values)
+
+export type PublicationAction = 'publish' | 'hide' | 'delete'
+
+export async function changePublication(
+  action: PublicationAction,
+): Promise<RegistrationResponse> {
+  const response = await fetch('/api/registration/profile/action', {
+    method: 'POST',
+    credentials: 'same-origin',
+    cache: 'no-store',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ action }),
+  })
+
+  const data = await response.json()
+
+  if (!response.ok) {
+    throw new Error(
+      typeof data.detail === 'string'
+        ? data.detail
+        : 'Unable to update your listing.',
+    )
+  }
+
+  return data
+}

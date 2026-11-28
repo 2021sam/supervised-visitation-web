@@ -120,4 +120,6 @@ def import_supervisors(source_path=SOURCE, destination_path=DESTINATION):
 
 
 if __name__ == "__main__":
-    print(f"Supervisor records imported: {import_supervisors()}")
+    from backend.publication.rebuild import rebuild_directory
+
+    print(f"Supervisor records imported: {rebuild_directory()}")

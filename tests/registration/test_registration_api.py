@@ -18,6 +18,8 @@ from backend.auth.sessions import create_session, get_session_email
 from backend.registration.database import initialize
 from backend.registration.profiles import get_profile, save_profile
 from backend.registration.photo_storage import save_photo
+from backend.registration.updates import update_registration
+from backend.registration.publication import publish_action
 
 
 class RegistrationAPITests(unittest.TestCase):
@@ -36,7 +38,21 @@ class RegistrationAPITests(unittest.TestCase):
         self.email = "provider@example.invalid"
         self.headers = {"Origin": self.origin}
 
+        self.directory_path = Path(temp.name) / "directory.db"
+
         patches = {
+            "backend.api.registration.update_registration":
+                partial(
+                    update_registration,
+                    registration_path=self.path,
+                    destination_path=self.directory_path,
+                ),
+            "backend.registration.publication.publish_action":
+                partial(
+                    publish_action,
+                    registration_path=self.path,
+                    destination_path=self.directory_path,
+                ),
             "backend.api.registration.get_session_email":
                 partial(get_session_email, database_path=self.auth_path),
             "backend.api.registration.get_profile":
@@ -57,6 +73,7 @@ class RegistrationAPITests(unittest.TestCase):
         env = patch.dict(os.environ, {
             "AUTH_BASE_URL": self.origin,
             "AUTH_EMAIL_ENABLED": "0",
+            "PROFILE_PUBLICATION_ENABLED": "0",
         })
         env.start()
         self.addCleanup(env.stop)
@@ -91,6 +108,65 @@ class RegistrationAPITests(unittest.TestCase):
         self.assertEqual(self.read().status_code, 401)
         self.assertEqual(self.save({}).status_code, 401)
         self.assertEqual(self.upload(b"image").status_code, 401)
+
+    def action(self, action):
+        return self.client.post(
+            "/api/registration/profile/action",
+            json={"action": action},
+            headers=self.headers,
+        )
+
+    def test_publication_requires_authentication(self):
+        self.assertEqual(self.action("publish").status_code, 401)
+
+    def test_publication_disabled(self):
+        self.sign_in()
+        self.assertEqual(self.action("publish").status_code, 503)
+
+    def test_publication_lifecycle(self):
+        self.sign_in()
+
+        response = self.save({
+            "first_name": "Test",
+            "last_name": "Provider",
+            "provider_type": "individual",
+            "phone": "9255550100",
+            "zip_code": "94506",
+            "state_code": "CA",
+            "county": "Contra Costa",
+        })
+
+        self.assertEqual(response.status_code, 200)
+
+        with patch.dict(os.environ, {
+            "PROFILE_PUBLICATION_ENABLED": "1",
+        }):
+            for action, status in (
+                ("publish", "active"),
+                ("hide", "hidden"),
+                ("publish", "active"),
+                ("delete", "deleted"),
+            ):
+                response = self.action(action)
+                self.assertEqual(
+                    response.status_code, 200, response.text
+                )
+                self.assertEqual(
+                    response.json()["profile"]["status"], status
+                )
+
+                if action == "publish":
+                    response = self.save({
+                        "professional_title": "Updated provider"
+                    })
+                    self.assertEqual(response.status_code, 200)
+                    self.assertIs(
+                        response.json()["publication_success"], True
+                    )
+
+            self.assertEqual(
+                self.action("publish").status_code, 422
+            )
 
     def test_new_profile(self):
         self.sign_in()

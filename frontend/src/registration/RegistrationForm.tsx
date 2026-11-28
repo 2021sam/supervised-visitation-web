@@ -11,12 +11,15 @@ import {
   booleanFields,
 } from './fields'
 import ProfilePhoto from './ProfilePhoto'
+import PublicationActions from './PublicationActions'
 import './RegistrationForm.css'
 
 export default function RegistrationForm() {
   const [values, setValues] = useState<Profile>({})
   const [photo, setPhoto] = useState<string | null>(null)
   const [profileSaved, setProfileSaved] = useState(false)
+  const [profileStatus, setProfileStatus] = useState('hidden')
+  const [dirty, setDirty] = useState(false)
   const [accountEmail, setAccountEmail] = useState('')
   const [matchedName, setMatchedName] = useState('')
   const [loading, setLoading] = useState(true)
@@ -71,6 +74,7 @@ export default function RegistrationForm() {
             : null
         )
         setProfileSaved(data.profile !== null)
+        setProfileStatus(String(data.profile?.status ?? 'hidden'))
         setAccountEmail(data.account_email)
         setMatchedName(String(data.prefill?.name ?? ''))
       })
@@ -85,6 +89,7 @@ export default function RegistrationForm() {
   }, [])
 
   function update(field: string, value: ProfileValue) {
+    setDirty(true)
     setValues((previous) => ({
       ...previous,
       [field]: value,
@@ -112,9 +117,17 @@ export default function RegistrationForm() {
           : Math.round(Number(value) * 1000)
       }
 
-      await saveProfile(payload)
+      const result = await saveProfile(payload)
       setProfileSaved(true)
+      setProfileStatus(String(result.profile?.status ?? 'hidden'))
+      setDirty(false)
       setMessage('Your profile has been saved.')
+
+      if (result.publication_success === false) {
+        setError(
+          'Your changes were saved, but the directory could not be updated. Please save again to retry.'
+        )
+      }
     } catch (err) {
       setError((err as Error).message)
     } finally {
@@ -145,6 +158,10 @@ export default function RegistrationForm() {
 
   if (!accountEmail) {
     return <p role="alert">{error}</p>
+  }
+
+  if (profileStatus === 'deleted') {
+    return <p>Your directory listing has been deleted.</p>
   }
 
   return (
@@ -309,6 +326,20 @@ export default function RegistrationForm() {
       <button type="submit" disabled={busy}>
         {busy ? 'Saving...' : 'Save Profile'}
       </button>
+
+      {profileSaved && (
+        <>
+          {dirty && (
+            <p>Save your changes before updating your listing status.</p>
+          )}
+
+          <PublicationActions
+            status={profileStatus}
+            disabled={busy || dirty}
+            onChange={setProfileStatus}
+          />
+        </>
+      )}
 
       {message && <p role="status">{message}</p>}
       {error && <p role="alert">{error}</p>}
