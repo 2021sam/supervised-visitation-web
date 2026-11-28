@@ -1,0 +1,73 @@
+.registration-form {
+  max-width: 720px;
+  margin: 1rem auto;
+  text-align: left;
+}
+
+.registration-form fieldset,
+.registration-form details {
+  border: 1px solid #aaa;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.registration-form .registration-required {
+  border: 2px solid #2563eb;
+}
+
+.registration-form legend,
+.registration-form summary {
+  font-weight: 600;
+}
+
+.registration-form summary {
+  cursor: pointer;
+}
+
+.registration-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin: 0.75rem 0;
+}
+
+.registration-form input,
+.registration-form select,
+.registration-form textarea {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 0.6rem;
+  font: inherit;
+}
+
+.profile-photo-controls {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.profile-photo-preview,
+.profile-photo-placeholder {
+  width: 128px;
+  height: 128px;
+  border-radius: 50%;
+}
+
+.profile-photo-preview {
+  object-fit: cover;
+}
+
+.profile-photo-placeholder {
+  display: grid;
+  place-items: center;
+  background: #eee;
+  color: #666;
+  border: 1px solid #ccc;
+}
+
+.profile-photo-controls small {
+  display: block;
+  margin-top: 0.5rem;
+}

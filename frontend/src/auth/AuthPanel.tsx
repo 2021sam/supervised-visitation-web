@@ -7,9 +7,10 @@ import {
   signOut,
 } from '../api/auth'
 import type { AuthSession } from '../api/auth'
+import RegistrationForm from '../registration/RegistrationForm'
 import './AuthPanel.css'
 
-export default function AuthPanel() {
+export default function AuthPanel({ profilePage = false }: { profilePage?: boolean }) {
   const [session, setSession] = useState<AuthSession | null>(null)
   const [email, setEmail] = useState('')
   const [open, setOpen] = useState(false)
@@ -125,6 +126,13 @@ export default function AuthPanel() {
       ) : session?.authenticated ? (
         <div className="auth-toolbar">
           <span>{session.email}</span>
+          {!profilePage && (
+            <button
+              onClick={() => window.location.assign('/profile')}
+            >
+              My Provider Profile
+            </button>
+          )}
           <button disabled={busy} onClick={handleLogout}>
             Sign out
           </button>
@@ -172,6 +180,10 @@ export default function AuthPanel() {
             </form>
           )}
         </>
+      )}
+
+      {session?.authenticated && profilePage && (
+        <RegistrationForm key={session.email} />
       )}
 
       {error && <p role="alert">{error}</p>}
