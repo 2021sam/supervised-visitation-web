@@ -3,6 +3,7 @@ import { calculateTotal } from '../crm/totalCost'
 import WeeklyAvailability from './WeeklyAvailability'
 
 interface Props {
+  languages?: string | null
   entry: CRMEntry
   calculatorOpen: boolean
   onToggleCalculator: () => void
@@ -21,6 +22,7 @@ const statuses: { value: ContactStatus; label: string }[] = [
 ]
 
 export default function CRMFields({
+  languages,
   entry,
   calculatorOpen,
   onToggleCalculator,
@@ -99,6 +101,7 @@ export default function CRMFields({
         </select>
       </td>
 
+      <td>{languages?.trim() || '—'}</td>
       <td>
         <textarea
           aria-label="Personal notes"

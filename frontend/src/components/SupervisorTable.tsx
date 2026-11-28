@@ -1,8 +1,6 @@
 import SupervisorDetails from './SupervisorDetails'
 import SupervisorZip from './SupervisorZip'
-import PhoneLink from './contacts/PhoneLink'
-import EmailLink from './contacts/EmailLink'
-import WebsiteLink from './contacts/WebsiteLink'
+import ProviderContact from './ProviderContact'
 import { Fragment, useState } from 'react'
 import { sortSupervisors } from '../crm/sorting'
 import type { SortConfig, SortField } from '../crm/sorting'
@@ -145,15 +143,7 @@ export default function SupervisorTable({
                 title="Approximate straight-line distance"
               />
             )}
-            <th scope="col">Phone</th>
-            <th scope="col">Email</th>
-            <th scope="col">Website</th>
-            <SortableHeader
-              label="Languages"
-              field="languages"
-              sort={sort}
-              onSort={handleSort}
-            />
+            <th scope="col" className="contact-column">Contact</th>
             <SortableHeader
               label="Contact status"
               field="status"
@@ -174,6 +164,12 @@ export default function SupervisorTable({
               sort={sort}
               onSort={handleSort}
             />
+            <SortableHeader
+              label="Languages"
+              field="languages"
+              sort={sort}
+              onSort={handleSort}
+            />
             <th scope="col">Notes</th>
           </tr>
         </thead>
@@ -181,7 +177,7 @@ export default function SupervisorTable({
         <tbody>
           {sortedSupervisors.length === 0 && (
             <tr>
-              <td colSpan={showDistance ? 12 : 11}>
+              <td colSpan={showDistance ? 10 : 9}>
                 All providers in these results are hidden.
                 Select Show hidden or restore them.
               </td>
@@ -212,12 +208,10 @@ export default function SupervisorTable({
                     : supervisor.distance_miles.toFixed(1)}
                 </td>
               )}
-              <td><PhoneLink value={supervisor.phone} /></td>
-              <td><EmailLink value={supervisor.email} /></td>
-              <td><WebsiteLink value={supervisor.website} /></td>
-              <td>{supervisor.languages?.trim() || '—'}</td>
+              <td><ProviderContact supervisor={supervisor} /></td>
 
               <CRMFields
+                languages={supervisor.languages}
                 calculatorOpen={openCalculator === supervisor.supervisor_id}
                 onToggleCalculator={() =>
                   setOpenCalculator(previous =>
@@ -237,7 +231,7 @@ export default function SupervisorTable({
             </tr>
             {openCalculator === supervisor.supervisor_id && (
               <tr className="calculator-row">
-                <td colSpan={showDistance ? 12 : 11}>
+                <td colSpan={showDistance ? 10 : 9}>
                   <CostCalculator
                     onClose={() => setOpenCalculator(null)}
                     entry={getEffectiveEntry(
