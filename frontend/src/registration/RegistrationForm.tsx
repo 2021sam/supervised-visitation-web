@@ -10,12 +10,18 @@ import {
   preferredFields,
   booleanFields,
 } from './fields'
+import { fetchCounties } from '../api/counties'
+import { fetchStates } from '../api/states'
+import type { State } from '../types/state'
+import type { County } from '../types/county'
 import ProfilePhoto from './ProfilePhoto'
 import PublicationActions from './PublicationActions'
 import './RegistrationForm.css'
 
 export default function RegistrationForm() {
   const [values, setValues] = useState<Profile>({})
+  const [counties, setCounties] = useState<County[]>([])
+  const [states, setStates] = useState<State[]>([])
   const [photo, setPhoto] = useState<string | null>(null)
   const [profileSaved, setProfileSaved] = useState(false)
   const [profileStatus, setProfileStatus] = useState('hidden')
@@ -29,6 +35,14 @@ export default function RegistrationForm() {
 
   useEffect(() => {
     let active = true
+
+    fetchStates()
+      .then((data) => {
+        if (active) setStates(data.states)
+      })
+      .catch((err: Error) => {
+        if (active) setError(err.message)
+      })
 
     fetchProfile()
       .then((data) => {
@@ -65,6 +79,9 @@ export default function RegistrationForm() {
             : Number(initial[field]) / 1000
         }
 
+        initial.state_code = source.state_code || 'CA'
+        initial.county = source.county ?? null
+        initial.service_counties = source.service_counties ?? null
         initial.calendar_visibility ??= 'public'
 
         setValues(initial)
@@ -88,6 +105,29 @@ export default function RegistrationForm() {
     return () => { active = false }
   }, [])
 
+  const stateCode = String(values.state_code ?? '')
+
+  useEffect(() => {
+    let active = true
+
+    if (stateCode) {
+      fetchCounties(stateCode)
+        .then((data) => {
+          if (active) setCounties(data.counties)
+        })
+        .catch((err: Error) => {
+          if (active) setError(err.message)
+        })
+    }
+
+    return () => { active = false }
+  }, [stateCode])
+
+  const selectedCounties = [...new Set([
+    String(values.county ?? ''),
+    ...String(values.service_counties ?? '').split(','),
+  ].map((name) => name.trim()).filter(Boolean))]
+
   function update(field: string, value: ProfileValue) {
     setDirty(true)
     setValues((previous) => ({
@@ -99,6 +139,12 @@ export default function RegistrationForm() {
 
   async function handleSave(event: FormEvent) {
     event.preventDefault()
+
+    if (!selectedCounties.length) {
+      setError('Please select at least one county.')
+      return
+    }
+
     setBusy(true)
     setError('')
     setMessage('')
@@ -205,12 +251,74 @@ export default function RegistrationForm() {
           textField(field, label, true)
         )}
 
+        <label>
+          State *
+          <select
+            required
+            value={stateCode}
+            onChange={(event) => {
+              setCounties([])
+              update('state_code', event.target.value || null)
+              update('county', null)
+              update('service_counties', null)
+            }}
+          >
+            <option value="">Select state</option>
+            {states.map((state) => (
+              <option
+                key={state.state_code}
+                value={state.state_code}
+              >
+                {state.state_name}
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <details>
+          <summary>
+            Counties served * ({selectedCounties.length} selected)
+          </summary>
+
+          <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
+            {counties.map((county) => (
+              <label
+                key={county.geoid}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  style={{ width: 'auto' }}
+                  checked={selectedCounties.includes(county.county_name)}
+                  onChange={(event) => {
+                    const next = event.target.checked
+                      ? [...selectedCounties, county.county_name]
+                      : selectedCounties.filter(
+                          (name) => name !== county.county_name
+                        )
+
+                    update('county', next[0] ?? null)
+                    update('service_counties', next.join(', ') || null)
+                  }}
+                />
+                {county.county_name}
+              </label>
+            ))}
+          </div>
+        </details>
+
         {values.provider_type === 'agency' &&
           textField('business_name', 'Business name', true)}
       </fieldset>
 
       <fieldset>
         <legend>Preferred information</legend>
+
+
 
         {preferredFields.map(([field, label]) =>
           textField(field, label)

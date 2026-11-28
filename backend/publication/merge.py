@@ -67,6 +67,37 @@ def insert_listing(db, profile, registration_id):
     return cursor.lastrowid
 
 
+def update_counties(db, supervisor_id, registration):
+    state = (registration.get("state_code") or "").strip().upper()
+
+    counties = {
+        name.strip()
+        for name in [
+            registration.get("county") or "",
+            *(registration.get("service_counties") or "").split(","),
+        ]
+        if name.strip()
+    }
+
+    if not state or not counties:
+        return
+
+    db.execute(
+        "DELETE FROM supervisor_courts WHERE supervisor_id = ?",
+        (supervisor_id,),
+    )
+
+    db.executemany("""
+        INSERT INTO supervisor_courts (
+            supervisor_id, state_code, county
+        )
+        VALUES (?, ?, ?)
+    """, [
+        (supervisor_id, state, county)
+        for county in sorted(counties)
+    ])
+
+
 def apply_merge_plan(db, plan):
     counts = {"updated": 0, "inserted": 0, "suppressed": 0}
 
@@ -88,6 +119,9 @@ def apply_merge_plan(db, plan):
         if matched_ids:
             for supervisor_id in matched_ids:
                 update_listing(db, supervisor_id, profile)
+                update_counties(
+                    db, supervisor_id, item["registration"]
+                )
                 counts["updated"] += 1
         else:
             registration = item["registration"]
@@ -97,20 +131,12 @@ def apply_merge_plan(db, plan):
                 profile,
                 registration["registration_id"],
             )
-            state = (registration.get("state_code") or "").strip()
-            county = (registration.get("county") or "").strip()
-
-            if not state or not county:
+            if not registration.get("state_code") or not registration.get("county"):
                 raise ValueError(
                     "New public listing requires a state and county."
                 )
 
-            db.execute("""
-                INSERT INTO supervisor_courts (
-                    supervisor_id, state_code, county
-                )
-                VALUES (?, ?, ?)
-            """, (supervisor_id, state.upper(), county))
+            update_counties(db, supervisor_id, registration)
 
             counts["inserted"] += 1
 

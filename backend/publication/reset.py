@@ -6,6 +6,8 @@ from backend.publication.schema import PUBLIC_COLUMNS, extend_schema
 def reset_registration_overrides(db):
     extend_schema(db)
 
+    db.execute("DELETE FROM supervisor_courts")
+
     for table in ("supervisor_sources", "supervisor_courts"):
         db.execute(f"""
             DELETE FROM {table}
