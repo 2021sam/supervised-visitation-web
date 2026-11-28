@@ -12,6 +12,7 @@ import { useCRM } from '../crm/useCRM'
 import { getEffectiveEntry } from '../crm/effectiveEntry'
 import CRMFields from './CRMFields'
 import CostCalculator from './CostCalculator'
+import ProviderVisibility from './ProviderVisibility'
 import './SupervisorTable.css'
 
 interface Props {
@@ -24,6 +25,8 @@ export default function SupervisorTable({
   showDistance = false,
 }: Props) {
   const { records, updateEntry, storageError } = useCRM()
+
+  const [showHidden, setShowHidden] = useState(false)
 
   const [openCalculator, setOpenCalculator] = useState<number | null>(null)
 
@@ -42,8 +45,33 @@ export default function SupervisorTable({
     }))
   }
 
+  const hiddenSupervisors = supervisors.filter(
+    supervisor => records[String(supervisor.supervisor_id)]?.hidden === true
+  )
+
+  const visibleSupervisors = showHidden
+    ? supervisors
+    : supervisors.filter(
+        supervisor => records[String(supervisor.supervisor_id)]?.hidden !== true
+      )
+
+  function toggleVisibility(supervisorId: number) {
+    const hidden = records[String(supervisorId)]?.hidden === true
+    updateEntry(supervisorId, { hidden: !hidden })
+
+    if (!hidden && openCalculator === supervisorId) {
+      setOpenCalculator(null)
+    }
+  }
+
+  function restoreAll() {
+    hiddenSupervisors.forEach(supervisor =>
+      updateEntry(supervisor.supervisor_id, { hidden: false })
+    )
+  }
+
   const sortedSupervisors = sortSupervisors(
-    supervisors,
+    visibleSupervisors,
     records,
     sort,
   )
@@ -60,6 +88,43 @@ export default function SupervisorTable({
           Your changes could not be saved to browser storage.
         </p>
       )}
+
+      <div className="visibility-toolbar">
+        <strong>
+          {supervisors.length - hiddenSupervisors.length} of {supervisors.length} providers
+        </strong>
+
+        <div className="visibility-controls">
+          <span className="hidden-count">
+            <svg width="18" height="18" viewBox="0 0 24 24"
+              fill="none" stroke="currentColor" strokeWidth="1.6"
+              aria-hidden="true">
+              <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+              <circle cx="12" cy="12" r="3" />
+              <path d="M3 3l18 18" />
+            </svg>
+            {hiddenSupervisors.length} hidden
+          </span>
+
+          <label>
+            <input
+              type="checkbox"
+              checked={showHidden}
+              onChange={event => setShowHidden(event.target.checked)}
+            />
+            Show hidden
+          </label>
+
+          <button
+            type="button"
+            className="restore-providers"
+            disabled={hiddenSupervisors.length === 0}
+            onClick={restoreAll}
+          >
+            Restore all
+          </button>
+        </div>
+      </div>
 
       <table className="supervisor-table">
         <thead>
@@ -114,11 +179,29 @@ export default function SupervisorTable({
         </thead>
 
         <tbody>
+          {sortedSupervisors.length === 0 && (
+            <tr>
+              <td colSpan={showDistance ? 12 : 11}>
+                All providers in these results are hidden.
+                Select Show hidden or restore them.
+              </td>
+            </tr>
+          )}
           {sortedSupervisors.map((supervisor) => (
             <Fragment key={supervisor.supervisor_id}>
-            <tr>
+            <tr className={
+              records[String(supervisor.supervisor_id)]?.hidden
+                ? 'hidden-provider'
+                : undefined
+            }>
               <td>
-                {supervisor.name}
+                <div className="provider-name">
+                  <span>{supervisor.name}</span>
+                  <ProviderVisibility
+                    hidden={records[String(supervisor.supervisor_id)]?.hidden === true}
+                    onToggle={() => toggleVisibility(supervisor.supervisor_id)}
+                  />
+                </div>
                 <SupervisorDetails supervisor={supervisor} />
               </td>
               <td><SupervisorZip supervisor={supervisor} /></td>

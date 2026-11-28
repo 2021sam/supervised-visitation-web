@@ -25,6 +25,7 @@ export interface TimeRange {
 export type WeeklyAvailability = Partial<Record<Weekday, TimeRange>>
 
 export interface CRMEntry {
+  hidden?: boolean
   status: ContactStatus
   hourlyQuote: string | number | null
   transportsChild?: boolean | null
@@ -40,6 +41,7 @@ export type CRMRecords = Record<string, Partial<CRMEntry>>
 
 export function createCRMEntry(): CRMEntry {
   return {
+    hidden: false,
     status: 'not_contacted',
     hourlyQuote: null,
     transportsChild: null,
