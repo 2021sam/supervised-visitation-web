@@ -71,7 +71,7 @@ def update_counties(db, supervisor_id, registration):
     state = (registration.get("state_code") or "").strip().upper()
 
     counties = {
-        name.strip()
+        name.strip().removesuffix(" County")
         for name in [
             registration.get("county") or "",
             *(registration.get("service_counties") or "").split(","),

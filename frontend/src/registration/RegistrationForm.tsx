@@ -280,7 +280,7 @@ export default function RegistrationForm() {
             Counties served * ({selectedCounties.length} selected)
           </summary>
 
-          <div style={{ maxHeight: '240px', overflowY: 'auto' }}>
+          <div className="registration-counties">
             {counties.map((county) => (
               <label
                 key={county.geoid}
