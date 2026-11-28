@@ -397,3 +397,77 @@
   min-width: 0;
   overflow-wrap: anywhere;
 }
+
+
+/* Language column filter */
+.language-filter {
+  display: inline-flex;
+  vertical-align: middle;
+  margin-left: 6px;
+}
+
+.language-filter-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px;
+  border: none;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.language-filter-toggle:hover {
+  background: rgba(128, 128, 128, 0.15);
+}
+
+.language-filter-toggle.active {
+  color: var(--accent, #2563eb);
+}
+
+.language-filter-row > td {
+  padding: 20px;
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.language-filter-row .language-filter {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+}
+
+.language-filter-menu {
+  width: fit-content;
+  max-width: 100%;
+  padding: 20px;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+}
+
+.language-filter-options {
+  display: grid;
+  grid-template-rows: repeat(10, auto);
+  grid-auto-flow: column;
+  gap: 10px 32px;
+  margin: 16px 0;
+}
+
+.language-filter-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-weight: normal;
+}
+
+.language-filter-actions {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 12px;
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.language-filter-actions button {
+  cursor: pointer;
+}

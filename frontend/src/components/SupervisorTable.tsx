@@ -1,3 +1,4 @@
+import LanguageSelector from './LanguageSelector'
 import SupervisorDetails from './SupervisorDetails'
 import SupervisorZip from './SupervisorZip'
 import ProviderContact from './ProviderContact'
@@ -16,15 +17,22 @@ import './SupervisorTable.css'
 interface Props {
   supervisors: Supervisor[]
   showDistance?: boolean
+  languages: string[]
+  selectedLanguages: string[]
+  onLanguageChange: (languages: string[]) => void
 }
 
 export default function SupervisorTable({
   supervisors,
   showDistance = false,
+  languages,
+  selectedLanguages,
+  onLanguageChange,
 }: Props) {
   const { records, updateEntry, storageError } = useCRM()
 
   const [showHidden, setShowHidden] = useState(false)
+  const [languageFilterOpen, setLanguageFilterOpen] = useState(false)
 
   const [openCalculator, setOpenCalculator] = useState<number | null>(null)
 
@@ -74,7 +82,7 @@ export default function SupervisorTable({
     sort,
   )
 
-  if (supervisors.length === 0) {
+  if (supervisors.length === 0 && selectedLanguages.length === 0) {
     return <p>No supervisors found.</p>
   }
 
@@ -169,17 +177,41 @@ export default function SupervisorTable({
               field="languages"
               sort={sort}
               onSort={handleSort}
+              filter={
+                <LanguageSelector
+                  languages={languages}
+                  selectedLanguages={selectedLanguages}
+                  onChange={onLanguageChange}
+                  open={languageFilterOpen}
+                  onToggle={() => setLanguageFilterOpen(previous => !previous)}
+                />
+              }
             />
             <th scope="col">Notes</th>
           </tr>
         </thead>
 
         <tbody>
+          {languageFilterOpen && (
+            <tr className="language-filter-row">
+              <td colSpan={showDistance ? 10 : 9}>
+                <LanguageSelector
+                  panel
+                  languages={languages}
+                  selectedLanguages={selectedLanguages}
+                  onChange={onLanguageChange}
+                  open={languageFilterOpen}
+                  onToggle={() => setLanguageFilterOpen(false)}
+                />
+              </td>
+            </tr>
+          )}
           {sortedSupervisors.length === 0 && (
             <tr>
               <td colSpan={showDistance ? 10 : 9}>
-                All providers in these results are hidden.
-                Select Show hidden or restore them.
+                {supervisors.length === 0
+                  ? 'No providers match the required languages. Adjust the language filter.'
+                  : 'All providers in these results are hidden. Select Show hidden or restore them.'}
               </td>
             </tr>
           )}

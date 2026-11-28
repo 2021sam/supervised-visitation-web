@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import type { SortConfig, SortField } from '../crm/sorting'
 
 interface Props {
@@ -6,6 +7,7 @@ interface Props {
   sort: SortConfig
   onSort: (field: SortField) => void
   title?: string
+  filter?: ReactNode
 }
 
 export default function SortableHeader({
@@ -14,6 +16,7 @@ export default function SortableHeader({
   sort,
   onSort,
   title,
+  filter,
 }: Props) {
   const active = sort.field === field
 
@@ -43,6 +46,7 @@ export default function SortableHeader({
             : ' ↕'}
         </span>
       </button>
+      {filter}
     </th>
   )
 }

@@ -7,8 +7,7 @@ import CountySelector from './components/CountySelector'
 import SearchMethodSelector from './components/SearchMethodSelector'
 import type { SearchMethod } from './components/SearchMethodSelector'
 import ZipRadiusSelector from './components/ZipRadiusSelector'
-import LanguageSelector from './components/LanguageSelector'
-import { getAvailableLanguages, filterByLanguage } from './search/languages'
+import { getAvailableLanguages, filterByLanguages } from './search/languages'
 import SupervisorTable from './components/SupervisorTable'
 import type { Supervisor } from './types/supervisor'
 import type { State } from './types/state'
@@ -20,7 +19,7 @@ export default function App() {
   const [counties, setCounties] = useState<County[]>([])
   const [selectedState, setSelectedState] = useState('')
   const [selectedCounty, setSelectedCounty] = useState('')
-  const [selectedLanguage, setSelectedLanguage] = useState('')
+  const [selectedLanguages, setSelectedLanguages] = useState<string[]>(['English'])
   const [searchMethod, setSearchMethod] =
     useState<SearchMethod>('county')
 
@@ -88,7 +87,7 @@ export default function App() {
       .then((data) => {
         if (active) {
           setSupervisors(data.supervisors)
-          setSelectedLanguage('')
+          setSelectedLanguages(['English'])
         }
       })
       .catch((error: Error) => {
@@ -147,9 +146,9 @@ export default function App() {
   }
 
   const languages = getAvailableLanguages(supervisors)
-  const filteredSupervisors = filterByLanguage(
+  const filteredSupervisors = filterByLanguages(
     supervisors,
-    selectedLanguage,
+    selectedLanguages,
   )
 
   return (
@@ -207,15 +206,13 @@ export default function App() {
         <p role="alert">{error}</p>
       ) : (
         <>
-          <LanguageSelector
-            languages={languages}
-            selectedLanguage={selectedLanguage}
-            onChange={setSelectedLanguage}
-          />
           <p>{filteredSupervisors.length} supervisors found</p>
           <SupervisorTable
             key={searchMethod}
             supervisors={filteredSupervisors}
+            languages={languages}
+            selectedLanguages={selectedLanguages}
+            onLanguageChange={setSelectedLanguages}
             showDistance={searchMethod === 'radius'}
           />
         </>
