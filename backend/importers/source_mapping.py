@@ -23,9 +23,9 @@ def resolve_supervisor_id(connection, source_id, name):
 
     connection.execute("""
         INSERT INTO supervisor_sources (
-            source_system, source_id, supervisor_id
+            source_system, source_id, supervisor_id, source_name
         )
-        VALUES (?, ?, ?)
-    """, (SOURCE_SYSTEM, source_id, supervisor_id))
+        VALUES (?, ?, ?, ?)
+    """, (SOURCE_SYSTEM, source_id, supervisor_id, name))
 
     return supervisor_id

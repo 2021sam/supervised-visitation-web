@@ -11,9 +11,9 @@ SOURCE = ROOT.parent / "supervised-visitation" / "registry.db"
 DESTINATION = ROOT / "data" / "directory.db"
 
 
-def import_supervisors():
+def import_supervisors(source_path=SOURCE, destination_path=DESTINATION):
     with sqlite3.connect(
-        SOURCE.as_uri() + "?mode=ro", uri=True
+        Path(source_path).resolve().as_uri() + "?mode=ro", uri=True
     ) as source:
         source.row_factory = sqlite3.Row
 
@@ -44,8 +44,11 @@ def import_supervisors():
               )
         """).fetchall()
 
-    with sqlite3.connect(DESTINATION) as destination:
+    with sqlite3.connect(destination_path) as destination:
         destination.execute("PRAGMA foreign_keys = ON")
+
+        from backend.publication.source_schema import extend_source_schema
+        extend_source_schema(destination)
 
         if not records:
             raise RuntimeError("Refusing to synchronize an empty acquisition dataset")

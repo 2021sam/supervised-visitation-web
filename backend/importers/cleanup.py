@@ -5,7 +5,8 @@ SOURCE_SYSTEM = "court_acquisition"
 
 def remove_obsolete_supervisors(connection, active_sources):
     mappings = connection.execute("""
-        SELECT m.source_id, m.supervisor_id, s.name
+        SELECT m.source_id, m.supervisor_id,
+               COALESCE(m.source_name, s.name)
         FROM supervisor_sources m
         JOIN supervisors s
           ON s.supervisor_id = m.supervisor_id
