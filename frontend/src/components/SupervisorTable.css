@@ -34,7 +34,7 @@
 
 /* CRM column sizing */
 .supervisor-table {
-  min-width: 2000px;
+  min-width: 1400px;
 }
 
 .supervisor-table th {
@@ -57,11 +57,7 @@
   width: 90px;
 }
 
-.supervisor-table th:nth-child(10),
-.supervisor-table td:nth-child(10) {
-  text-align: center;
-  min-width: 100px;
-}
+
 
 .supervisor-table textarea {
   width: 180px;
@@ -76,9 +72,7 @@
 }
 
 /* Meeting location */
-.supervisor-table td:nth-child(7) input {
-  width: 260px;
-}
+
 
 /* Weekly availability */
 .weekly-availability {
@@ -177,4 +171,85 @@
   white-space: nowrap;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
+}
+
+
+/* Expandable cost calculator */
+.calculator-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 10px;
+  border: 1px solid rgba(128, 128, 128, 0.4);
+  border-radius: 6px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.calculator-toggle:hover {
+  background: rgba(128, 128, 128, 0.12);
+}
+
+.calculator-row > td {
+  background: rgba(128, 128, 128, 0.06);
+}
+
+.cost-calculator {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  max-width: 420px;
+  padding: 16px;
+  border: 1px solid rgba(128, 128, 128, 0.3);
+  border-radius: 8px;
+}
+
+.cost-calculator label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+.cost-calculator > div:last-child {
+  grid-column: 1 / -1;
+}
+
+.supervisor-table .cost-calculator input {
+  width: 100%;
+}
+
+.cost-calculator .crm-total {
+  font-size: 1.3rem;
+}
+
+
+/* Centered calculator panel */
+.calculator-row > td {
+  padding: 20px;
+  border-top: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.cost-calculator {
+  margin: 0 auto;
+}
+
+.calculator-heading {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: 12px;
+  border-bottom: 1px solid rgba(128, 128, 128, 0.3);
+}
+
+.calculator-heading button {
+  border: none;
+  background: transparent;
+  color: inherit;
+  font-size: 1.4rem;
+  cursor: pointer;
 }

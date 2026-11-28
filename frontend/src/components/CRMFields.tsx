@@ -1,10 +1,11 @@
 import type { CRMEntry, ContactStatus } from '../crm/types'
 import { calculateTotal } from '../crm/totalCost'
-import MeetingLocation from './MeetingLocation'
 import WeeklyAvailability from './WeeklyAvailability'
 
 interface Props {
   entry: CRMEntry
+  calculatorOpen: boolean
+  onToggleCalculator: () => void
   onChange: (changes: Partial<Omit<CRMEntry, 'updatedAt'>>) => void
 }
 
@@ -21,6 +22,8 @@ const statuses: { value: ContactStatus; label: string }[] = [
 
 export default function CRMFields({
   entry,
+  calculatorOpen,
+  onToggleCalculator,
   onChange,
 }: Props) {
   const total = calculateTotal(entry)
@@ -45,76 +48,23 @@ export default function CRMFields({
         </select>
       </td>
 
-      <td>
-        <input
-          aria-label="Hourly quote in dollars"
-          type="text"
-          placeholder="$ / hr"
-          value={entry.hourlyQuote ?? ''}
-          onChange={(event) =>
-            onChange({
-              hourlyQuote: event.target.value || null,
-            })
-          }
-        />
-      </td>
-
-
-
-      <td>
-        <input
-          aria-label="Visitation hours"
-          type="number"
-          min="0"
-          step="any"
-          placeholder="Hours"
-          value={entry.hours ?? ''}
-          onChange={(event) => {
-            const hours = event.target.valueAsNumber
-
-            if (event.target.value === '') {
-              onChange({ hours: null })
-            } else if (Number.isFinite(hours) && hours >= 0) {
-              onChange({ hours })
-            }
-          }}
-        />
-      </td>
-
-
-
-      <td>
-        <input
-          aria-label="Location fee per visit"
-          type="number"
-          min="0"
-          step="1"
-          placeholder="$"
-          value={entry.locationFee ?? ''}
-          onChange={(event) => {
-            const value = event.target.value
-            const fee = event.target.valueAsNumber
-
-            if (value === '') {
-              onChange({ locationFee: null })
-            } else if (Number.isFinite(fee) && fee >= 0) {
-              onChange({ locationFee: fee })
-            }
-          }}
-        />
-      </td>
-
       <td className="crm-total">
-        {total == null ? '' : total.toFixed(2)}
-      </td>
-
-      <td>
-        <MeetingLocation
-          value={entry.meetingLocation ?? ''}
-          onChange={(meetingLocation) =>
-            onChange({ meetingLocation })
-          }
-        />
+        <button
+          type="button"
+          className="calculator-toggle"
+          aria-expanded={calculatorOpen}
+          aria-label={calculatorOpen ? 'Close calculator' : 'Open calculator'}
+          onClick={onToggleCalculator}
+        >
+          <span>{total == null ? '—' : '$' + total.toFixed(2)}</span>
+          <svg width="18" height="18" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" strokeWidth="1.6"
+            aria-hidden="true">
+            <rect x="5" y="2" width="14" height="20" rx="2" />
+            <path d="M8 6h8M8 10h2m4 0h2M8 14h2m4 0h2M8 18h2m4 0h2" />
+          </svg>
+          <span aria-hidden="true"> {calculatorOpen ? '▴' : '▾'}</span>
+        </button>
       </td>
 
       <td>

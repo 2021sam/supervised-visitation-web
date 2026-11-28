@@ -3,7 +3,7 @@ import SupervisorZip from './SupervisorZip'
 import PhoneLink from './contacts/PhoneLink'
 import EmailLink from './contacts/EmailLink'
 import WebsiteLink from './contacts/WebsiteLink'
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { sortSupervisors } from '../crm/sorting'
 import type { SortConfig, SortField } from '../crm/sorting'
 import SortableHeader from './SortableHeader'
@@ -11,6 +11,7 @@ import type { Supervisor } from '../types/supervisor'
 import { useCRM } from '../crm/useCRM'
 import { getEffectiveEntry } from '../crm/effectiveEntry'
 import CRMFields from './CRMFields'
+import CostCalculator from './CostCalculator'
 import './SupervisorTable.css'
 
 interface Props {
@@ -23,6 +24,8 @@ export default function SupervisorTable({
   showDistance = false,
 }: Props) {
   const { records, updateEntry, storageError } = useCRM()
+
+  const [openCalculator, setOpenCalculator] = useState<number | null>(null)
 
   const [sort, setSort] = useState<SortConfig>({
     field: showDistance ? 'distance' : 'name',
@@ -93,33 +96,12 @@ export default function SupervisorTable({
               onSort={handleSort}
             />
             <SortableHeader
-              label="Rate ($/hr)"
-              title="Published hourly rate or your confirmed quote"
-              field="hourlyQuote"
-              sort={sort}
-              onSort={handleSort}
-            />
-            <SortableHeader
-              label="Hours"
-              field="hours"
-              sort={sort}
-              onSort={handleSort}
-            />
-            <SortableHeader
-              label="Location fee ($)"
-              field="locationFee"
-              sort={sort}
-              onSort={handleSort}
-              title="Additional fee per visit at the agreed location"
-            />
-            <SortableHeader
               label="Total ($)"
               field="totalCost"
               sort={sort}
               onSort={handleSort}
               title="Hourly rate × hours + location fee"
             />
-            <th scope="col">Meeting location</th>
             <th scope="col">Availability</th>
             <SortableHeader
               label="Transports child"
@@ -133,7 +115,8 @@ export default function SupervisorTable({
 
         <tbody>
           {sortedSupervisors.map((supervisor) => (
-            <tr key={supervisor.supervisor_id}>
+            <Fragment key={supervisor.supervisor_id}>
+            <tr>
               <td>
                 {supervisor.name}
                 <SupervisorDetails supervisor={supervisor} />
@@ -152,6 +135,14 @@ export default function SupervisorTable({
               <td>{supervisor.languages?.trim() || '—'}</td>
 
               <CRMFields
+                calculatorOpen={openCalculator === supervisor.supervisor_id}
+                onToggleCalculator={() =>
+                  setOpenCalculator(previous =>
+                    previous === supervisor.supervisor_id
+                      ? null
+                      : supervisor.supervisor_id
+                  )
+                }
                 entry={getEffectiveEntry(
                   supervisor,
                   records[String(supervisor.supervisor_id)],
@@ -161,6 +152,23 @@ export default function SupervisorTable({
                 }
               />
             </tr>
+            {openCalculator === supervisor.supervisor_id && (
+              <tr className="calculator-row">
+                <td colSpan={showDistance ? 12 : 11}>
+                  <CostCalculator
+                    onClose={() => setOpenCalculator(null)}
+                    entry={getEffectiveEntry(
+                      supervisor,
+                      records[String(supervisor.supervisor_id)],
+                    )}
+                    onChange={(changes) =>
+                      updateEntry(supervisor.supervisor_id, changes)
+                    }
+                  />
+                </td>
+              </tr>
+            )}
+            </Fragment>
           ))}
         </tbody>
       </table>
