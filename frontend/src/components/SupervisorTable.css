@@ -338,3 +338,32 @@
 .hidden-provider:hover {
   opacity: 0.85;
 }
+
+
+/* Shared solid expand/collapse indicators */
+.supervisor-table summary {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+}
+
+.supervisor-table summary::-webkit-details-marker {
+  display: none;
+}
+
+.expand-triangle,
+.supervisor-table summary::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  background: currentColor;
+  clip-path: polygon(15% 0, 100% 50%, 15% 100%);
+}
+
+.calculator-toggle[aria-expanded="true"] .expand-triangle,
+.supervisor-table details[open] > summary::before {
+  transform: rotate(90deg);
+}
