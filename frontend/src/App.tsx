@@ -12,6 +12,7 @@ import SupervisorTable from './components/SupervisorTable'
 import type { Supervisor } from './types/supervisor'
 import type { State } from './types/state'
 import type { County } from './types/county'
+import AuthPanel from './auth/AuthPanel'
 import './App.css'
 
 export default function App() {
@@ -153,6 +154,7 @@ export default function App() {
 
   return (
     <main>
+      <AuthPanel />
       <h1>Supervised Visitation Directory</h1>
       <p>Find supervised visitation providers nationwide.</p>
 

@@ -20,7 +20,10 @@ def send_verification_email(
     parsed = urlsplit(base_url)
 
     if (
-        parsed.scheme != "https"
+        (
+            parsed.scheme != "https"
+            and base_url != "http://localhost:5173"
+        )
         or not parsed.hostname
         or parsed.username
         or parsed.password
