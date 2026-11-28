@@ -3,11 +3,17 @@
 import sqlite3
 from pathlib import Path
 
+from backend.publication.schema import PUBLIC_COLUMNS
+
 DATABASE = Path(__file__).resolve().parents[2] / "data" / "directory.db"
 
 
 def list_supervisors(state_code=None, county=None):
-    query = """
+    public_fields = ", ".join(
+        f"s.{field}" for field in PUBLIC_COLUMNS
+    )
+
+    query = f"""
         SELECT DISTINCT
             s.supervisor_id,
             s.name,
@@ -24,7 +30,8 @@ def list_supervisors(state_code=None, county=None):
             s.service_zip_code,
             s.languages,
             s.service_counties,
-            s.additional_info
+            s.additional_info,
+            {public_fields}
         FROM supervisors s
         JOIN supervisor_courts c
             ON c.supervisor_id = s.supervisor_id
