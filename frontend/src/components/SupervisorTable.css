@@ -62,6 +62,9 @@
 .supervisor-table textarea {
   width: 180px;
   font-family: inherit;
+  field-sizing: content;
+  min-height: 3.5em;
+  resize: vertical;
 }
 
 .supervisor-table input,
